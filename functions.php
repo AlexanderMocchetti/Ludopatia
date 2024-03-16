@@ -38,3 +38,31 @@ function getUserIdByUsername($username,$conn):int
     $row = mysqli_fetch_array($result, MYSQLI_ASSOC);
     return $row['id'];
 }
+
+function getMinPointsValue($conn):int
+{
+    $sql = "SELECT * FROM const WHERE id = 1";
+    $result = mysqli_query($conn, $sql);
+    $row = mysqli_fetch_assoc($result);
+    return $row['min_points'];
+}
+function getMaxPointsValue($conn):int
+{
+
+    $sql = "SELECT * FROM const WHERE id = 1";
+    $result = mysqli_query($conn, $sql);
+    $row = mysqli_fetch_assoc($result);
+    return $row['max_points'];
+}
+function insertBet($description,$points,$id_creator,$conn):bool
+{
+    $sql = "INSERT INTO bets (description,points,id_creator)
+            VALUES 
+            ('$description','$points','$id_creator')";
+    if ($conn->query($sql) === TRUE) {
+        return true;
+    } else {
+
+        return false;
+    }
+}

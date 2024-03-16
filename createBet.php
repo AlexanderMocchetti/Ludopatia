@@ -1,8 +1,13 @@
 <?php
-require_once 'functions.php';
-require_once 'connection.php';
-global $conn;
 session_start();
+if (!isset($_SESSION["id"]))
+{
+    header("Location: login.php");
+    die;
+}
+require_once 'connection.php';
+require_once 'functions.php';
+global $conn;
 ?>
 <!doctype html>
 <html lang="en">
@@ -11,8 +16,8 @@ session_start();
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Login</title>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <title>Create bets</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
 </head>
 <body>
 <section class="vh-100 bg-image"
@@ -23,18 +28,17 @@ session_start();
                 <div class="col-12 col-md-9 col-lg-7 col-xl-6">
                     <div class="card" style="border-radius: 15px; background-color: white;">
                         <div class="card-body p-5">
-                            <h2 style="color: #080A0B" class="text-uppercase text-center mb-5">Login</h2>
+                            <h2 style="color: #080A0B" class="text-uppercase text-center mb-5">Create bet</h2>
                             <form action="<?=htmlspecialchars($_SERVER['PHP_SELF']);?>" method="post">
                                 <div class="form-outline mb-4">
-                                    <input type="text" name="username" id="username" class="form-control form-control-lg" maxlength="100" placeholder="Username" required/>
-                                    <label class="form-label" for="username">Username</label>
+                                    <textarea name="description" id="description" class="form-control form-control-lg" maxlength="100" placeholder="description" required></textarea>
                                 </div>
                                 <div class="form-outline mb-4">
-                                    <input type="password" id="password" name="password" class="form-control form-control-lg" placeholder="Password" required/>
-                                    <label class="form-label" for="password">Password</label>
+                                    <input type="number" id="points" name="points" class="form-control form-control-lg" placeholder="points" min="<?php echo getMinPointsValue($conn); ?>" max="<?php echo getMaxPointsValue($conn); ?>" required/>
+                                    <label class="form-label" for="points">Points</label>
                                 </div>
                                 <div class="d-flex justify-content-center">
-                                    <button type="submit" style="background-color: teal;" class="btn btn-primary btn-lg">Login!</button>
+                                    <button type="submit" style="background-color: teal;" class="btn btn-primary btn-lg">Submit</button>
                                 </div>
                             </form>
                         </div>
@@ -49,18 +53,20 @@ session_start();
 <?php
 if ($_SERVER['REQUEST_METHOD'] == 'POST')
 {
-    $username = $_POST['username'];
-    $password = $_POST['password'];
+    $description = $_POST['description'];
+    $points = $_POST['points'];
 
-    if (!isset($username) || !isset($password))
+    //var_dump($description);
+    //var_dump($points);
+    //var_dump($_SESSION['id']);
+
+    if (!isset($description) || !isset($points))
     {
         exit();
     }
-    if (existUserLogin($username, md5($password), $conn))
+    if (insertBet($description,$points,$_SESSION["id"],$conn))
     {
-        $_SESSION['id'] = getUserIdByUsername($username,$conn);
-        header("Location: bacheca.php");
-        die;
+        header('Location: bacheca.php');
     }
     $conn->close();
 }
